@@ -1,0 +1,77 @@
+#table{
+    background-color: lightgrey;
+    width: 80vw; /*zmenit nasledne v javascript tak, aby vybral mensi rozmer a ten nastaviil jako velikost #table*/
+    height: 70vh; /*zmenit nasledne v javascript tak, aby vybral mensi rozmer a ten nastaviil jako velikost #table*/
+    display: grid;
+    place-items: stretch;
+    align-items: center;
+    justify-items: center;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    border-radius: 10px;
+}
+.card{
+    border: solid;
+    position: relative;
+    width: 90%;
+    height: 90%;
+}
+.card img{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+#container{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+#restart-btn{
+    margin: 0.5em;
+    font-size: 2.5em;
+    font-weight: bold;
+    color: white;
+    background-color: darkgreen;
+}
+
+#menu, .submenu{
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s;
+    /*height: 2em;*/
+    background-color: #111;
+}
+#menu-wrapper{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+.menu-btn{
+    cursor: pointer;
+    border: none;
+    outline: none;
+    width: 100%;
+    background-color: #111;
+    color: white;
+    font-weight: bold;
+    font-size: 1em;
+    height: 3em;
+    margin: 0em;
+}
+.active, .menu-btn:hover{
+    background-color: darkgrey;
+}
+.submenu .menu-btn{
+    background-color: rgb(135, 135, 135);
+}
+#maxShown:active, #pairs:active{
+    background-color: darkgrey;
+}
+@media only screen and (min-width: 800px){
+    .menu-btn, .submenu-maxShown, .submenu-pairs, .submenu-faces{
+        font-size: 2em;
+        /*height: 1em;*/
+    }
+}

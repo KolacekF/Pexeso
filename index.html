@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<head>
+    <meta charset="UTF-8" />
+    <title>PUZZLE</title>
+    <link rel="stylesheet" href="style.css">
+    <style></style>
+    <script>
+        let pairs = 6;
+        const combinations = [];
+        const Shown = [2, {}] //[0]=maxShown, [1]=currentshown
+        let guessed = 0;
+        let faces = "kid"
+
+        function HandleCards(){
+            let table = document.getElementById("table");
+            let cards = table.children;
+            for (const card of cards) {
+                for (const imgNode of card.children) {
+                    if (imgNode.className == "back") {
+                        imgNode.src = "questionMark.jpeg";
+                        imgNode.style.visibility = "visible";
+                    }
+                    if (imgNode.className == "front") {
+                        const front = combinations[imgNode.parentElement.id];
+                        imgNode.src = "./faces/" + faces + "/" + front + ".png";
+                        imgNode.style.visibility = "hidden";
+                    }
+                }
+            }
+        }
+        function CreatePairs(){
+            for (let i = 0; combinations.length < pairs*2; i++) {
+                for (let x = 0; x < Shown[0]; x++) {
+                    combinations.push(i);
+                    //i = i + 1;
+                }
+            }
+            console.log(combinations.toString());
+            for (let i = 0; i < combinations.length; i++) {
+                const j = Math.floor(Math.random() * (combinations.length - 1));
+                [combinations[i], combinations[j]] = [combinations[j], combinations[i]];
+                
+            }
+            console.log(combinations);
+        }
+        function FindPair(card){
+            let back; //card.children;
+            let front;
+            for (const imgNode of card.children) {
+                imgNode.className == "front"? front=imgNode: back=imgNode; 
+            }
+            console.log(back, front);
+            /*if (Shown[1].push(card) > Shown[0]) {
+                //code for when the shown number exceeds max possible shown cards
+            }*/
+
+            back.style.visibility = "hidden";
+            front.style.visibility = "visible";
+
+            (Shown[1])[card.id] = card; //add choosen card to object (set to object if multiple clicks on same card)
+            if (Object.keys(Shown[1]).length >= Shown[0]) {
+                //code for when the shown number exceeds max possible shown cards
+                let correct = true;
+                const index = combinations[((Shown[1])[Object.keys(Shown[1])[0]].id)]; //take .id of first record in object Shown and save number of that index in combinations[]
+                for (const choosen in Shown[1]) {
+                    console.log("choosen");
+                    console.log(choosen);
+                    if (combinations[choosen] != index) {
+                        correct = false;
+                    }
+                }
+                console.log("correct");
+                console.log(correct);
+
+                //if correct == false -> hide choosen faces, clean Shown[1] object
+                //if correct == true -> clean Shown[1] object and +1 to guessed
+                
+                if (correct === false) {
+                    document.getElementById("table").addEventListener("click", CorrectFalse, true);
+                }
+                if (correct === true) {
+                    let keys = Object.keys(Shown[1]);
+                    guessed = guessed + 1;
+                    CleanShownObject(keys); //clean Shown[1] object
+                    guessed >= (pairs*2/Shown[0])? End(): "";
+                    console.log(guessed)
+                }
+            }
+            console.log(Shown);
+        }
+        function CorrectFalse(){
+            let keys = Object.keys(Shown[1]);
+            for (const key of keys) {
+                for (const toFlip of (Shown[1])[key].children) {
+                    if (toFlip.className == "back") toFlip.style.visibility = "visible";
+                    if (toFlip.className == "front") toFlip.style.visibility = "hidden";
+                    console.log(key);
+                }  
+            }
+            CleanShownObject(keys); //clean Shown[1] object
+            document.getElementById("table").removeEventListener("click", CorrectFalse, true);
+        }
+        function CleanShownObject(keys){
+            for (const key of keys) {
+                delete (Shown[1])[key];
+            }
+        }
+
+        function End(){
+            confirm("BLAHOPŘEJEME K VÍTĚZSTVÍ 🎉\n\n Chete hrát znovu?")? Restart(): document.getElementById("restart-btn").style.display = "block";
+        }
+
+        function Restart(){
+            Shown[1] = {};
+            guessed = 0;
+            combinations.length = 0;
+            document.getElementById("restart-btn").style.display = "none";
+            CreatePairs();
+            HandleCards();
+        }
+
+        function ChangePairs(e){
+            pairs = e.value /2;
+            const cardsNodeList = document.getElementById("table").children;
+            console.log("cardsNodeList");
+            console.log(cardsNodeList);
+            while (cardsNodeList.length > 0) {
+                cardsNodeList[0].remove();
+            }
+            const table = document.getElementById("table");
+            switch (pairs) {
+                case 6:
+                    table.style.gridTemplateColumns = "repeat(3, 1fr)";
+                    table.style.gridTemplateRows = "repeat(4, 1fr)";
+                    break;
+                case 9:
+                    table.style.gridTemplateColumns = "repeat(3, 1fr)";
+                    table.style.gridTemplateRows = "repeat(6, 1fr)";
+                    break;
+            }
+            CreateCards();
+            Restart();
+        }
+
+        function CreateCards(){
+            const tableNode = document.getElementById("table");
+            for (let i = 0; i < pairs*2; i++) {
+                const card = document.createElement("div");
+                const back = document.createElement("img");
+                const front = document.createElement("img");
+                card.className = "card";
+                card.id = i;
+                card.setAttribute("onclick", "FindPair(this)");
+                back.className = "back";
+                front.className = "front";
+                card.appendChild(back);
+                card.appendChild(front);
+                tableNode.appendChild(card);
+            }
+        }
+
+        function OpenCloseNav(){
+            let burger = document.getElementById("menu-burger");
+            let menu = document.getElementById("menu");
+            if (menu.style.maxHeight == 0) {
+                menu.style.maxHeight = menu.scrollHeight + "px";
+                burger.innerHTML = "⬇︎ Zavřít možnosti";
+            } else {
+                menu.style.maxHeight = null;
+                burger.innerHTML = "&#9776; Otevřít možnosti";
+            }
+            /*let menu = document.getElementById("menu");
+            if (menu.style.top == "") {
+                menu.style.bottom = "";
+                menu.style.top = "calc(100% - 15em)";
+                menu.children[0].innerHTML = "&#9776; Otevřít možnosti";
+            } else {
+                menu.style.bottom = "0";
+                menu.style.top = "";
+                menu.children[0].innerHTML = "⬇︎ Zavřít možnosti";
+            }*/
+
+            
+        }
+        function DropDownMenu(element){
+            let submenu = element.nextElementSibling;
+            element.classList.toggle("active");
+            if(submenu.style.maxHeight == 0){
+                submenu.style.maxHeight = submenu.scrollHeight + "px";
+            } else{
+                submenu.style.maxHeight = null;
+            }
+            setTimeout(function() {
+                let menu = document.getElementById("menu");
+                menu.style.maxHeight = menu.scrollHeight + "px";    
+            }, 550);
+            /*let submenu = document.getElementsByClassName("submenu-" + element.id);
+            let change = "";
+
+            if (submenu[0].style.display == "none") {
+                change = "block";
+            } else {
+                change = "none";
+            }
+            for (const x of submenu) {
+                x.style.display = change;
+            }*/
+        }
+
+        function FirstLoad(){
+            CreateCards();
+            CreatePairs();
+            HandleCards();
+        }
+    </script>
+</head>
+<body onload="FirstLoad()">
+    <div id="container">
+        <button id="restart-btn" onclick="Restart()" style="display: none;">HRÁT ZNOVU</button>
+        <div id="table">
+        </div>
+    </div>
+    <div id="menu-wrapper">
+        <button id="menu-burger" class="menu-btn" onclick="OpenCloseNav()">&#9776;Otevřít možnost</button>
+        <nav id="menu" style="top: calc(100% - 15em);">
+            <button id="restart" class="menu-btn" onclick="confirm('Začít znovu?')? Restart(): ''">ZAČÍT ZNOVU  ⥀</button>
+            <button id="maxShown" class="menu-btn" onclick="DropDownMenu(this)">KOLIK HLEDÁM ⬇︎</button>
+            <div class="submenu">
+                <button value="2" class="submenu-maxShown menu-btn" onclick="Shown[0]=Number(this.value); Restart(); OpenCloseNav()">DVOJICE</button>
+                <button value="3" class="submenu-maxShown menu-btn" onclick="Shown[0]=Number(this.value); Restart(); OpenCloseNav()">TROJICE</button>
+            </div>
+            <button id="pairs" class="menu-btn" onclick="DropDownMenu(this)">POČET KARTIČEK ⬇︎</button>
+            <div class="submenu">
+                <button value="12" class="submenu-pairs menu-btn" onclick="ChangePairs(this); OpenCloseNav()">12 KARTIČEK</button>
+                <button value="18" class="submenu-pairs menu-btn" onclick="ChangePairs(this); OpenCloseNav()">18 KARTIČEK</button>
+            </div>
+            <button id="faces" class="menu-btn" onclick="DropDownMenu(this)">OBRÁZKY ⬇︎</button>
+            <div class="submenu">
+                <button value="kid" class="submenu-faces menu-btn" onclick="faces = this.value; Restart(); OpenCloseNav()">DĚTSKÉ</button>
+                <button value="birds" class="submenu-faces menu-btn" onclick="faces = this.value; Restart(); OpenCloseNav()">PTÁCI</button>
+            </div>
+        </nav>
+    </div>
+</body>
