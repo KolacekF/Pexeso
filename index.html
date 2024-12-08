@@ -18,14 +18,16 @@
                 for (const imgNode of card.children) {
                     if (imgNode.className == "back") {
                         imgNode.src = "questionMark.jpeg";
-                        imgNode.style.visibility = "visible";
+                        //imgNode.style.visibility = "visible";
                     }
                     if (imgNode.className == "front") {
                         const front = combinations[imgNode.parentElement.id];
                         imgNode.src = "./faces/" + faces + "/" + front + ".png";
-                        imgNode.style.visibility = "hidden";
+                        //imgNode.style.visibility = "hidden";
                     }
                 }
+                card.classList.add("inactive_card");
+                card.classList.remove("guessed_card"); //for when restarting game, its needed to also .remove("guessed_card")
             }
         }
         function CreatePairs(){
@@ -54,8 +56,10 @@
                 //code for when the shown number exceeds max possible shown cards
             }*/
 
-            back.style.visibility = "hidden";
-            front.style.visibility = "visible";
+            back.parentElement.classList.remove("inactive_card");
+            back.parentElement.classList.add("active_card");
+            /*back.style.visibility = "hidden";
+            front.style.visibility = "visible";*/
 
             (Shown[1])[card.id] = card; //add choosen card to object (set to object if multiple clicks on same card)
             if (Object.keys(Shown[1]).length >= Shown[0]) {
@@ -82,7 +86,20 @@
                     let keys = Object.keys(Shown[1]);
                     guessed = guessed + 1;
                     CleanShownObject(keys); //clean Shown[1] object
-                    guessed >= (pairs*2/Shown[0])? End(): "";
+                    /*back.parentNode.classList.remove("active_card");
+                    back.parentNode.classList.add("guessed_card");*/
+
+                    let table = document.getElementById("table");
+                    let cards = table.children;
+                    for (const card of cards) {
+                        if(card.classList.contains("active_card")){
+                            card.classList.remove("active_card");
+                            card.classList.add("guessed_card");
+                        }
+                    }
+
+                    guessed >= (pairs*2/Shown[0])? setTimeout(() => {End()}, 1000) : "";
+
                     console.log(guessed)
                 }
             }
@@ -92,8 +109,11 @@
             let keys = Object.keys(Shown[1]);
             for (const key of keys) {
                 for (const toFlip of (Shown[1])[key].children) {
-                    if (toFlip.className == "back") toFlip.style.visibility = "visible";
-                    if (toFlip.className == "front") toFlip.style.visibility = "hidden";
+                    console.log(toFlip);
+                    toFlip.parentNode.classList.remove("active_card");
+                    toFlip.parentNode.classList.add("inactive_card");
+                    /*if (toFlip.className == "back") toFlip.style.visibility = "visible";
+                    if (toFlip.className == "front") toFlip.style.visibility = "hidden";*/
                     console.log(key);
                 }  
             }
@@ -149,6 +169,7 @@
                 const back = document.createElement("img");
                 const front = document.createElement("img");
                 card.className = "card";
+                card.classList.add("inactive_card");
                 card.id = i;
                 card.setAttribute("onclick", "FindPair(this)");
                 back.className = "back";
